@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  postgres-db:
+    container_name: "postgres"
+    image: "postgres:14-alpine"
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    environment:
+      POSTGRES_PASSWORD: palem
+      POSTGRES_USER: palem
+      POSTGRES_DB: palem
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./palem-db-data:/var/lib/postgresql/data/pgdata
+      - ./palem-init-db.sql:/docker-entrypoint-initdb.d/palem-init-db.sql
+
+  keycloak:
+    container_name: "keycloak"
+    image: "jboss/keycloak:16.1.1"
+    ports:
+      - "8081:8080"
+    restart: on-failure
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      DB_ADDR: postgres-db:5432
+      DB_VENDOR: postgres
+      DB_USER: palem
+      DB_PASSWORD: palem
+    depends_on:
+      - postgres-db
